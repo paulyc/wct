@@ -2508,7 +2508,8 @@ ActionListener, WindowListener {
 
 		System.out.println("---------------- START RASTERIZER --------------------");
 		// RASTERIZE THE DATA
-		boolean isRasterVariableRes = ! clipToExtent; // use current extent
+		//BUGGED!! boolean isRasterVariableRes = ! clipToExtent; // use current extent
+		boolean isRasterVariableRes = true;
 		try {
 
 
@@ -9662,7 +9663,6 @@ ActionListener, WindowListener {
 	/**
 	 *  Description of the Method
 	 *
-	 * @param  args  The command line arguments
 	 */
 
 	private void exitProgram() {
