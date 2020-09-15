@@ -282,8 +282,8 @@ public class JeksCodec
               valueClass = Boolean.class;
             else
               valueClass = Class.forName (value.substring (0, spaceIndex));
-            Object cellValue  = valueClass.getConstructor (new Class [] {String.class})
-                                              .newInstance (new String [] {value.substring (spaceIndex + 1)});
+            Object cellValue  = valueClass.getConstructor (String.class)
+                                              .newInstance (value.substring (spaceIndex + 1));
             tableModel.setValueAt (cellValue, cell.getRow (), cell.getColumn ());
           }
           catch (Exception e)

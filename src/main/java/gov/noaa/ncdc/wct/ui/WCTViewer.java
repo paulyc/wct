@@ -382,7 +382,7 @@ ActionListener, WindowListener {
 
 
 
-	private boolean useWctCache = true;
+	private boolean useWctCache = false;
 
 	private double lastDecodedElevationAngle = Double.NaN;
 
@@ -2403,11 +2403,11 @@ ActionListener, WindowListener {
 	//**************************************************************
 
 	public void refreshRadarData() {
-		refreshRadarData(true);
+		refreshRadarData(false);
 	}
 //	public synchronized void refreshRadarData(final boolean clipToExtent) {
-	public void refreshRadarData(final boolean clipToExtent) {
-
+	public void refreshRadarData(final boolean cte) {
+		boolean clipToExtent = cte;
 
 		
 		if (dataUrl == null || scannedFile.getLastScanResult() == null) {
@@ -2441,7 +2441,7 @@ ActionListener, WindowListener {
 
 
 
-	public Object refreshRadarDataWithWait(final boolean clipToExtent) {
+	public Object refreshRadarDataWithWait(boolean clipToExtent) {
 		
 
 		// Indicate that new save is needed upon closing
@@ -2483,11 +2483,12 @@ ActionListener, WindowListener {
 			setIsLoading(false);
 			return "";
 		}
-		
-		java.awt.geom.Rectangle2D.Double maxExtent = MaxGeographicExtent.getNexradExtent(header);
-		if (currentExtent.getWidth() > maxExtent.getWidth()) {
-			currentExtent = maxExtent;
-		}
+
+		// bugged
+		//java.awt.geom.Rectangle2D.Double maxExtent = MaxGeographicExtent.getNexradExtent(header);
+		//if (currentExtent.getWidth() > maxExtent.getWidth() || currentExtent.getHeight() > maxExtent.getHeight()) {
+		//	currentExtent = maxExtent;
+		//}
 
 
 		//TODO : Add smoothing bounds limit so smoothed areas is limited at a certain scale factor
@@ -2508,6 +2509,7 @@ ActionListener, WindowListener {
 
 		System.out.println("---------------- START RASTERIZER --------------------");
 		// RASTERIZE THE DATA
+		clipToExtent = true;
 		boolean isRasterVariableRes = ! clipToExtent; // use current extent
 		try {
 
@@ -2626,8 +2628,8 @@ ActionListener, WindowListener {
 			Math.abs(radarGC.getEnvelope().getLength(0) - getCurrentExtent().getWidth()) > 0.001 || 
 			Math.abs(radarGC.getEnvelope().getLength(1) - getCurrentExtent().getHeight()) > 0.001
 					) {
-//			System.out.println(radarGC.getEnvelope());
-//			System.out.println(getCurrentExtent());
+			System.out.println(radarGC.getEnvelope());
+			System.out.println(getCurrentExtent());
 //			refreshRadarData();			
 			
 		}
@@ -4222,6 +4224,7 @@ ActionListener, WindowListener {
 					if (resetExtent) {
 						wctMapPane.setVisibleArea(alpha_decoder.getNexradExtent());
 					}
+					setCurrentExtent(alpha_decoder.getNexradExtent());
 
 					if (alphaProperties != null) {
 						alphaProperties.refreshMatchingFileList();
@@ -4556,14 +4559,16 @@ ActionListener, WindowListener {
 					else {
 						wctFilter.setExtentFilter(this.getCurrentExtent());
 					}
-					xmrgDecoder.setDecodeHint("nexradFilter", wctFilter);
+					//xmrgDecoder.setDecodeHint("nexradFilter", wctFilter);
+					//xmrgDecoder.setDecodeHint("reducePolygons", new Boolean(false));
 					xmrgDecoder.decodeData();
 				}
 				else if (wctFilterGUI == null || ! wctFilterGUI.isFilterEngaged()) {
 					xmrgDecoder.decodeData();
 				}
 				else {
-					xmrgDecoder.setDecodeHint("nexradFilter", wctFilterGUI.getGridFilter(wctFilter));
+					//xmrgDecoder.setDecodeHint("nexradFilter", wctFilterGUI.getGridFilter(wctFilter));
+					//xmrgDecoder.setDecodeHint("reducePolygons", new Boolean(false));
 					xmrgDecoder.decodeData();
 				} 
 
@@ -4896,7 +4901,7 @@ ActionListener, WindowListener {
 			viewProperties.setProjectionChangeEnabled(true);
 			viewProperties.setDistanceUnitsEnabled(true);
 
-			//nexradBounds = decoder.getNexradExtent();
+			//nexradBounds = getNexradExtent();
 			System.out.println("BOUNDS======  " + nexradBounds);
 
 			// Get the Range Rings
@@ -9662,7 +9667,6 @@ ActionListener, WindowListener {
 	/**
 	 *  Description of the Method
 	 *
-	 * @param  args  The command line arguments
 	 */
 
 	private void exitProgram() {
